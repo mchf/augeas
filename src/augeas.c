@@ -348,7 +348,7 @@ static struct tree *tree_from_transform(struct augeas *aug,
     }
     return txfm;
  error:
-    tree_unlink(txfm);
+    tree_unlink(aug, txfm);
     return NULL;
 }
 
@@ -536,6 +536,37 @@ struct augeas *aug_init(const char *root, const char *loadpath,
     return NULL;
 }
 
+/* Free one tree node */
+static void free_tree_node(struct tree *tree) {
+    if (tree == NULL)
+        return;
+
+    if (tree->span != NULL)
+        free_span(tree->span);
+    free(tree->label);
+    free(tree->value);
+    free(tree);
+}
+
+/* Only unlink; assume we know TREE is not in the symtab */
+static int tree_unlink_raw(struct tree *tree) {
+    int result = 0;
+
+    assert (tree->parent != NULL);
+    list_remove(tree, tree->parent->children);
+    tree_mark_dirty(tree->parent);
+    result = free_tree(tree->children) + 1;
+    free_tree_node(tree);
+    return result;
+}
+
+int tree_unlink(struct augeas *aug, struct tree *tree) {
+    if (tree == NULL)
+        return 0;
+    pathx_symtab_remove_descendants(aug->symtab, tree);
+    return tree_unlink_raw(tree);
+}
+
 void tree_unlink_children(struct augeas *aug, struct tree *tree) {
     if (tree == NULL)
         return;
@@ -543,7 +574,7 @@ void tree_unlink_children(struct augeas *aug, struct tree *tree) {
     pathx_symtab_remove_descendants(aug->symtab, tree);
 
     while (tree->children != NULL)
-        tree_unlink(tree->children);
+        tree_unlink_raw(tree->children);
 }
 
 static void tree_mark_files(struct tree *tree) {
@@ -557,16 +588,14 @@ static void tree_mark_files(struct tree *tree) {
 }
 
 static void tree_rm_dirty_files(struct augeas *aug, struct tree *tree) {
-    struct tree *p, *file;
+    struct tree *p;
 
     if (!tree->dirty)
         return;
 
     if ((p = tree_child(tree, "path")) != NULL) {
-        if ((file = tree_fpath(aug, p->value))) {
-            tree_unlink(file);
-        }
-        tree_unlink(tree);
+        tree_unlink(aug, tree_fpath(aug, p->value));
+        tree_unlink(aug, tree);
     } else {
         struct tree *c = tree->children;
         while (c != NULL) {
@@ -590,7 +619,7 @@ static void tree_rm_dirty_leaves(struct augeas *aug, struct tree *tree,
     }
 
     if (tree != protect && tree->children == NULL)
-        tree_unlink(tree);
+        tree_unlink(aug, tree);
 }
 
 int aug_load(struct augeas *aug) {
@@ -712,9 +741,7 @@ static void record_var_meta(struct augeas *aug, const char *name,
     struct tree *tree = tree_path_cr(aug->origin, 2, s_augeas, s_vars);
     ERR_NOMEM(tree == NULL, aug);
     if (expr == NULL) {
-        tree = tree_child(tree, name);
-        if (tree != NULL)
-            tree_unlink(tree);
+        tree_unlink(aug, tree_child(tree, name));
     } else {
         tree = tree_child_cr(tree, name);
         ERR_NOMEM(tree == NULL, aug);
@@ -957,18 +984,6 @@ struct tree *make_tree_origin(struct tree *root) {
     return origin;
 }
 
-/* Free one tree node */
-static void free_tree_node(struct tree *tree) {
-    if (tree == NULL)
-        return;
-
-    if (tree->span != NULL)
-        free_span(tree->span);
-    free(tree->label);
-    free(tree->value);
-    free(tree);
-}
-
 /* Recursively free the whole tree TREE and all its siblings */
 int free_tree(struct tree *tree) {
     int cnt = 0;
@@ -982,17 +997,6 @@ int free_tree(struct tree *tree) {
     }
 
     return cnt;
-}
-
-int tree_unlink(struct tree *tree) {
-    int result = 0;
-
-    assert (tree->parent != NULL);
-    list_remove(tree, tree->parent->children);
-    tree_mark_dirty(tree->parent);
-    result = free_tree(tree->children) + 1;
-    free_tree_node(tree);
-    return result;
 }
 
 int tree_rm(struct pathx *p) {
@@ -1021,7 +1025,7 @@ int tree_rm(struct pathx *p) {
     }
 
     for (i = 0; i < ndel; i++)
-        cnt += tree_unlink(del[i]);
+        cnt += tree_unlink_raw(del[i]);
     free(del);
 
     return cnt;
@@ -1146,7 +1150,7 @@ int aug_mv(struct augeas *aug, const char *src, const char *dst) {
     ts->value = NULL;
     ts->children = NULL;
 
-    tree_unlink(ts);
+    tree_unlink(aug, ts);
     tree_mark_dirty(td);
 
     ret = 0;

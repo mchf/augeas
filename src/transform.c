@@ -379,11 +379,8 @@ static int store_error(struct augeas *aug,
     } else {
         /* No error, nuke the error node if it exists */
         err_info = tree_child(finfo, s_error);
-        if (err_info != NULL) {
-            tree_unlink_children(aug, err_info);
-            pathx_symtab_remove_descendants(aug->symtab, err_info);
-            tree_unlink(err_info);
-        }
+        if (err_info != NULL)
+            tree_unlink(aug, err_info);
     }
 
     tree_clean(finfo);
@@ -681,7 +678,7 @@ int transform_validate(struct augeas *aug, struct tree *xfm) {
         if (streqv(t->label, "error")) {
             struct tree *del = t;
             t = del->next;
-            tree_unlink(del);
+            tree_unlink(aug, del);
         } else {
             t = t->next;
         }
@@ -1272,7 +1269,7 @@ int remove_file(struct augeas *aug, struct tree *tree) {
             goto error;
         }
     }
-    tree_unlink(tree);
+    tree_unlink(aug, tree);
  done:
     free(path);
     free(augorig);
