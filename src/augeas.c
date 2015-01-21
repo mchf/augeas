@@ -1464,6 +1464,20 @@ int dump_tree(FILE *out, struct tree *tree) {
     return result;
 }
 
+int aug_escape_name(augeas *aug, const char *in, char **out) {
+    int result;
+
+    api_entry(aug);
+    ARG_CHECK(in == NULL, aug, "aug_escape_name: IN must not be NULL");
+    ARG_CHECK(out == NULL, aug, "aug_escape_name: OUT must not be NULL");
+
+    result = pathx_escape_name(in, out);
+    ERR_NOMEM(result < 0, aug);
+ error:
+    api_exit(aug);
+    return result;
+}
+
 int aug_print(const struct augeas *aug, FILE *out, const char *pathin) {
     struct pathx *p;
     int result;

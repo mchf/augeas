@@ -351,6 +351,23 @@ static void testMv(CuTest *tc) {
     aug_close(aug);
 }
 
+static void testAugEscape(CuTest *tc) {
+    static const char *const in  = "a/[]b|=c()!, \td";
+    static const char *const exp = "a\\/\\[\\]b\\|\\=c\\(\\)\\!,\\ \\\td";
+    char *out;
+    struct augeas *aug;
+    int r;
+
+    aug = aug_init(root, loadpath, AUG_NO_STDINC|AUG_NO_LOAD);
+    CuAssertPtrNotNull(tc, aug);
+
+    r = aug_escape_name(aug, in, &out);
+    CuAssertRetSuccess(tc, r);
+
+    CuAssertStrEquals(tc, out, exp);
+    free(out);
+}
+
 int main(void) {
     char *output = NULL;
     CuSuite* suite = CuSuiteNew();
@@ -363,6 +380,7 @@ int main(void) {
     SUITE_ADD_TEST(suite, testDefNodeCreateMeta);
     SUITE_ADD_TEST(suite, testNodeInfo);
     SUITE_ADD_TEST(suite, testMv);
+    SUITE_ADD_TEST(suite, testAugEscape);
 
     abs_top_srcdir = getenv("abs_top_srcdir");
     if (abs_top_srcdir == NULL)
