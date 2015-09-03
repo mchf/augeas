@@ -129,7 +129,7 @@ static const char *const axis_sep = "::";
  *
  * See parse_name for the gory details
  */
-static const char const name_follow[] = "][|/=()!,";
+static const char const name_follow[] = "][|/=()!";
 
 /* Doubly linked list of location steps. Besides the information from the
  * path expression, also contains information to iterate over a node set,
