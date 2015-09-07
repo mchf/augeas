@@ -203,11 +203,11 @@ test coerce-and-false /files['' and count(/none) and /none]
 test preceding-sibling /files/etc/hosts/*/preceding-sibling::*[alias = 'localhost']
      /files/etc/hosts/1
 
-test preceding-sibling-pred /files/etc/grub.conf/*[preceding-sibling::*[1] = ../default]
-     /files/etc/grub.conf/timeout = 5
+test preceding-sibling-pred /files/boot/grub/menu.lst/*[preceding-sibling::*[1] = ../default]
+     /files/boot/grub/menu.lst/timeout = 5
 
-test preceding-sibling-pred2 /files/etc/grub.conf/*[preceding-sibling::*[1][self::default]]
-     /files/etc/grub.conf/timeout = 5
+test preceding-sibling-pred2 /files/boot/grub/menu.lst/*[preceding-sibling::*[1][self::default]]
+     /files/boot/grub/menu.lst/timeout = 5
 
 test following-sibling /files/etc/hosts/1/*/following-sibling::alias
      /files/etc/hosts/1/alias[1] = localhost

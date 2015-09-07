@@ -7,7 +7,7 @@
 run_augtool() {
 augtool --nostdinc -r $root -I $abs_top_srcdir/lenses <<EOF
 set /files/etc/hosts/1/ipaddr 127.0.1.1
-set /files/etc/grub.conf/default 3
+set /files/boot/grub/menu.lst/default 3
 set /files/etc/inittab/1/action fake
 rm /files/etc/puppet/puppet.conf
 set /files/etc/yum.repos.d/fedora.repo/fedora/enabled 0
@@ -24,7 +24,7 @@ cp -pr $abs_top_srcdir/tests/root/* $root
 chmod -R u+w $root
 
 saved=$(run_augtool | grep ^/augeas/events/saved | cut -d ' ' -f 3 | sort | tr '\n' ' ')
-exp="/files/etc/grub.conf /files/etc/hosts /files/etc/inittab /files/etc/puppet/puppet.conf /files/etc/yum.repos.d/fedora.repo "
+exp="/files/boot/grub/menu.lst /files/etc/hosts /files/etc/inittab /files/etc/puppet/puppet.conf /files/etc/yum.repos.d/fedora.repo "
 
 if [ -f "$root/etc/puppet/puppet.conf" ]
 then
