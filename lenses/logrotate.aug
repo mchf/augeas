@@ -17,7 +17,7 @@ module Logrotate =
    let sep_spc = Util.del_ws_spc
    let sep_val = del /[ \t]*=[ \t]*|[ \t]+/ " "
    let eol = Util.eol
-   let num = /[0-9]+/
+   let num = /[+]?[0-9]+/
    let word = /[^,#= \n\t{}]+/
    let filename = /\/[^,#= \n\t{}]+/
    let size = num . /[kMG]?/
