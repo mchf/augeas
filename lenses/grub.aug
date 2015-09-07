@@ -179,4 +179,4 @@ module Grub =
 
     let lns = (comment | empty | menu_setting | boot | debian)*
     let xfm = transform lns (incl "/boot/grub/menu.lst"
-                           . incl "/etc/grub.conf")
+                            )
