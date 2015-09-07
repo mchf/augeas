@@ -277,6 +277,8 @@ module Shellvars =
   let filter_ifcfg   = incl "/etc/sysconfig/network-scripts/ifcfg-*"
                      . incl "/etc/sysconfig/network/ifcfg-*"
   let filter_default = incl "/etc/default/*"
+                     . excl "/etc/default/rmt"
+                     . excl "/etc/default/star"
   let filter_misc    = incl "/etc/arno-iptables-firewall/debconf.cfg"
                      . incl "/etc/cron-apt/config"
                      . incl "/etc/environment"
