@@ -380,8 +380,6 @@ static int main_loop(void) {
     bool end_reached = false;
     bool get_line = true;
     bool in_interactive = false;
-    // make readline silent by default
-    rl_outstream = fopen("/dev/null", "w");
 
     if (inputfile) {
         if (freopen(inputfile, "r", stdin) == NULL) {
@@ -398,6 +396,8 @@ static int main_loop(void) {
 
     if (echo)
         rl_outstream = NULL;
+    else
+        rl_outstream = fopen("/dev/null", "w");
 
     while(1) {
         if (get_line) {
@@ -483,9 +483,15 @@ static int run_args(int argc, char **argv) {
     }
     code = run_command(line);
     free(line);
-    if (code == 0 && auto_save)
+    if (code >= 0 && auto_save)
+        if (echo)
+            printf("%ssave\n", AUGTOOL_PROMPT);
         code = run_command("save");
-    return (code == 0 || code == -2) ? 0 : -1;
+
+    if (code < 0) {
+        code = -1;
+    }
+    return (code >= 0 || code == -2) ? 0 : -1;
 }
 
 int main(int argc, char **argv) {
