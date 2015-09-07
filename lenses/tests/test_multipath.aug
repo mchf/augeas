@@ -34,6 +34,12 @@ defaults {
 	failback		immediate
 	no_path_retry		fail
 	user_friendly_names	yes
+  dev_loss_tmo  30
+  max_polling_interval  300
+  verbosity 2
+  reassign_maps yes
+  fast_io_fail_tmo  5
+  async_timeout 5
 }
 
 # Sections without empty lines in between
@@ -72,12 +78,14 @@ devices {
 		hardware_handler	\"0\"
 		failback		15
 		rr_weight		priorities
+		rr_min_io_rq		75
 		no_path_retry		queue
 	}
 	device {
 		vendor			\"COMPAQ  \"
 		product			\"MSA1000         \"
 		path_grouping_policy	multibus
+		polling_interval	9
 	}
 }\n"
 
@@ -112,7 +120,13 @@ test Multipath.lns get conf =
     { "rr_weight" = "priorities" }
     { "failback" = "immediate" }
     { "no_path_retry" = "fail" }
-    { "user_friendly_names" = "yes" } }
+    { "user_friendly_names" = "yes" }
+    { "dev_loss_tmo" = "30" }
+    { "max_polling_interval" = "300" }
+    { "verbosity" = "2" }
+    { "reassign_maps" = "yes" }
+    { "fast_io_fail_tmo" = "5" }
+    { "async_timeout" = "5" } }
   { }
   { "#comment" = "Sections without empty lines in between" }
   { "blacklist"
@@ -146,8 +160,10 @@ test Multipath.lns get conf =
       { "hardware_handler" = "0" }
       { "failback" = "15" }
       { "rr_weight" = "priorities" }
+      { "rr_min_io_rq" = "75" }
       { "no_path_retry" = "queue" } }
     { "device"
       { "vendor" = "COMPAQ  " }
       { "product" = "MSA1000         " }
-      { "path_grouping_policy" = "multibus" } } }
+      { "path_grouping_policy" = "multibus" }
+      { "polling_interval" = "9" } } }
