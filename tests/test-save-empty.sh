@@ -15,7 +15,7 @@ EOF
 
 expected_errors() {
 cat <<EOF
-/augeas/files/etc/hosts/error = "open_augnew"
+/augeas/files/etc/hosts/error = "mk_augtemp"
 /augeas/files/etc/hosts/error/message = "No such file or directory"
 EOF
 }
@@ -31,6 +31,7 @@ EXPECTED=$(expected_errors)
 if [ "$ACTUAL" != "$EXPECTED" ]
 then
     echo "No error on missing /etc directory"
+    echo "$ACTUAL"
     exit 1
 fi
 
