@@ -44,6 +44,7 @@ let entry = alias
   | options
   | cmd_token_to_eol /install|remove/
   | [ cmd "blacklist" . token . eol ]
+  | [ cmd "allow_unsupported_modules" . token . eol ]
   | [ cmd "config" . store /binary_indexes|yes|no/ ]
 
 let lns = (comment|empty|entry)*
